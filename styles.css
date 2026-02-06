@@ -323,10 +323,10 @@ select:disabled,input:disabled{opacity:.55}
 .manualRow .manualStack select{min-width:72px;}
 
 @media (max-width: 520px){
-  .manualRow{ flex-direction:column; align-items:stretch; gap:10px; }
+  .manualRow{ flex-direction:column; align-items:stretch; gap:6px; }
   .manualRow .manualStack{ width:100%; }
   .manualRow .manualStack select{ width:100%; }
-  .anytimeLabel{ width:100%; }
+  .anytimeLabel{ width:100%; margin-top:-2px; }
 
   .checksRow{
     display:grid;
@@ -467,12 +467,12 @@ select:disabled,input:disabled{opacity:.55}
 /* Bug/Fish menu icons */
 .bugIcon,
 .fishIcon{
-  width:22px; height:22px;
+  width:30px; height:30px;
   flex:0 0 auto;
   border-radius:6px;
   display:block;
-  min-width:22px;
-  min-height:22px;
+  min-width:30px;
+  min-height:30px;
 }
 
 .bugNameText{
