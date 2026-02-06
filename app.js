@@ -1,11 +1,5 @@
 // app.js
 
-function dispMonths(s){
-  const t = String(s||"").trim();
-  if (!t) return "";
-  if (/^1月\s*[〜～-]\s*12月$/.test(t)) return "1年中";
-  return t;
-}
 function dispTimes(s){
   const t = String(s||"").trim();
   if (!t) return "";
@@ -318,7 +312,15 @@ function isCatchable(item){
   return false;
 }
 
-function normalizeText(s){ return String(s ?? "").toLowerCase(); }
+function normalizeKana(s){
+  return String(s ?? "").replace(/[ァ-ヶ]/g, ch =>
+    String.fromCharCode(ch.charCodeAt(0) - 0x60)
+  );
+}
+
+function normalizeText(s){
+  return normalizeKana(String(s ?? "").normalize("NFKC").toLowerCase());
+}
 
 function escapeHtml(s){
   return String(s ?? "")
