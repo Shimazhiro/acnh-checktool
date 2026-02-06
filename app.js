@@ -1,5 +1,11 @@
 // app.js
 
+function dispMonths(s){
+  const t = String(s||"").trim();
+  if (!t) return "";
+  if (/^1月\s*[〜～-]\s*12月$/.test(t)) return "1年中";
+  return t;
+}
 function dispTimes(s){
   const t = String(s||"").trim();
   if (!t) return "";
@@ -312,15 +318,7 @@ function isCatchable(item){
   return false;
 }
 
-function normalizeKana(s){
-  return String(s ?? "").replace(/[ァ-ヶ]/g, ch =>
-    String.fromCharCode(ch.charCodeAt(0) - 0x60)
-  );
-}
-
-function normalizeText(s){
-  return normalizeKana(String(s ?? "").normalize("NFKC").toLowerCase());
-}
+function normalizeText(s){ return String(s ?? "").toLowerCase(); }
 
 function escapeHtml(s){
   return String(s ?? "")
@@ -546,7 +544,7 @@ function renderList(kind, items){
             </div>
 
             <!-- 手動時だけ表示 -->
-            <div class="row manualRow" style="display:${s.nowMode==="manual"?"flex":"none"};">
+            <div class="row manualRow" style="display:${s.nowMode==="manual"?"flex":"none"}; gap:10px; flex-wrap:wrap; align-items:flex-end;">
               <div class="manualStack">
                 <div class="inlineLabel">月（手動）</div>
                 <select id="${kind}-set-month" ${manualDisabled?"disabled":""}>${monthOpts}</select>
@@ -557,7 +555,7 @@ function renderList(kind, items){
                 <select id="${kind}-set-hour" ${(manualDisabled||s.manualAnytime)?"disabled":""}>${hourOpts}</select>
               </div>
 
-              <label class="row anytimeLabel">
+              <label class="row anytimeLabel" style="gap:6px; align-items:center;">
                 <input type="checkbox" id="${kind}-set-anytime" ${s.manualAnytime?"checked":""} ${manualDisabled?"disabled":""}/>
                 <span class="inlineLabel">すべての時間</span>
               </label>

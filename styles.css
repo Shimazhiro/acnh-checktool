@@ -317,17 +317,16 @@ select:disabled,input:disabled{opacity:.55}
 .clearBtn:disabled{ opacity:0.35; cursor:default; }
 .inlineLabel{ font-size:12px; color:#555; white-space:nowrap; }
 
-.manualRow{align-items:flex-end;gap:10px;flex-wrap:wrap;}
+.manualRow{align-items:flex-end;}
 .manualStack{display:flex;flex-direction:column;gap:4px;}
-.anytimeLabel{gap:6px;align-items:center;}
 .manualStack .inlineLabel{margin:0;white-space:nowrap;}
 .manualRow .manualStack select{min-width:72px;}
 
 @media (max-width: 520px){
-  .manualRow{ flex-direction:column; align-items:stretch; gap:6px; }
+  .manualRow{ flex-direction:column; align-items:stretch; gap:10px; }
   .manualRow .manualStack{ width:100%; }
   .manualRow .manualStack select{ width:100%; }
-  .anytimeLabel{ width:100%; margin-top:-2px; }
+  .anytimeLabel{ width:100%; }
 
   .checksRow{
     display:grid;
@@ -468,12 +467,12 @@ select:disabled,input:disabled{opacity:.55}
 /* Bug/Fish menu icons */
 .bugIcon,
 .fishIcon{
-  width:30px; height:30px;
+  width:22px; height:22px;
   flex:0 0 auto;
   border-radius:6px;
   display:block;
-  min-width:30px;
-  min-height:30px;
+  min-width:22px;
+  min-height:22px;
 }
 
 .bugNameText{
