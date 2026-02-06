@@ -546,7 +546,7 @@ function renderList(kind, items){
             </div>
 
             <!-- 手動時だけ表示 -->
-            <div class="row manualRow" style="display:${s.nowMode==="manual"?"flex":"none"}; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+            <div class="row manualRow" style="display:${s.nowMode==="manual"?"flex":"none"};">
               <div class="manualStack">
                 <div class="inlineLabel">月（手動）</div>
                 <select id="${kind}-set-month" ${manualDisabled?"disabled":""}>${monthOpts}</select>
@@ -557,7 +557,7 @@ function renderList(kind, items){
                 <select id="${kind}-set-hour" ${(manualDisabled||s.manualAnytime)?"disabled":""}>${hourOpts}</select>
               </div>
 
-              <label class="row anytimeLabel" style="gap:6px; align-items:center;">
+              <label class="row anytimeLabel">
                 <input type="checkbox" id="${kind}-set-anytime" ${s.manualAnytime?"checked":""} ${manualDisabled?"disabled":""}/>
                 <span class="inlineLabel">すべての時間</span>
               </label>

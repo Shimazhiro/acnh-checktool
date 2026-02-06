@@ -1,4 +1,4 @@
-const CACHE_NAME = "acnh-checklist-v4-1-22header-smartheader-fix-d";
+const CACHE_NAME = "acnh-checklist-v4-1-22header-smartheader-fix-e";
 const ASSETS = [
   "./",
   "./index.html",
