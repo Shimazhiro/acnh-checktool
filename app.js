@@ -17,6 +17,7 @@ function rememberedLocLabel(s){
   return (t === "(指定なし)") ? "指定なし" : t;
 }
 
+// months: [1..12] 数値配列から連続区間を作る（例: [1,2,3,7,8] -> [{s:1,e:3},{s:7,e:8}]）
 function monthsToRangeObjs(months){
   const a = Array.from(new Set((months||[]).map(n=>Number(n)).filter(n=>n>=1 && n<=12))).sort((x,y)=>x-y);
   if (!a.length) return [];
@@ -31,30 +32,60 @@ function monthsToRangeObjs(months){
   return ranges;
 }
 
+// ★表示用：
+// - 1..12全部なら「1年中」
+// - 末尾が「～12月」、先頭が「1月～」のときだけ結合して「11月～4月」のようにする
+//   例）[1,2,3,4,7,8,9,11,12] -> "11月～4月、7月～9月"
 function formatMonthsDisplayFromArray(months){
   const uniq = Array.from(new Set((months||[]).map(n=>Number(n)).filter(n=>n>=1 && n<=12)));
   if (!uniq.length) return "";
+
+  // 1年中
   if (uniq.length === 12) return "1年中";
 
   const ranges = monthsToRangeObjs(uniq);
   if (!ranges.length) return "";
 
+  // 先頭が 1月開始 && 末尾が 12月終了 の場合は結合して年またぎ表現にする
   if (ranges.length >= 2 && ranges[0].s === 1 && ranges[ranges.length - 1].e === 12) {
-    const first = ranges.shift();
-    const last  = ranges.pop();
-    const merged = { s: last.s, e: first.e };
+    const first = ranges.shift();       // 1月～...
+    const last  = ranges.pop();         // ...～12月
+    const merged = { s: last.s, e: first.e }; // 11月～4月
+
+    // 表示順：年またぎmerged → 残り（中間）
     const out = [merged, ...ranges];
-    return out.map(r => (r.s === r.e) ? `${r.s}月` : `${r.s}月～${r.e}月`).join("、");
+
+    return out.map(r => {
+      if (r.s === r.e) return `${r.s}月`;
+      return `${r.s}月～${r.e}月`;
+    }).join("、");
   }
 
-  return ranges.map(r => (r.s === r.e) ? `${r.s}月` : `${r.s}月～${r.e}月`).join("、");
+  // 通常
+  return ranges.map(r => {
+    if (r.s === r.e) return `${r.s}月`;
+    return `${r.s}月～${r.e}月`;
+  }).join("、");
 }
 
-// ------------------------------------------------------------
+// あつまれどうぶつの森 チェックツール（オフラインPWA） v4.1
+// 修正点：
+// - 生き物が表示されない問題に対応（fetch失敗時は data-inline.js を利用）
+// - 書き出し/読み込み（JSON）を削除
+// - 出現（月/時間）を「出現月」「出現時間」に分割
+// - 操作UI（設定/絞り込み/ソート/検索）を整列（グリッド化）
+// - ★スマホは No+名前だけのカード一覧にし、タップで詳細展開（見やすく）
+// - ★魚影サイズを表示
+// - ★「チェック済のみ表示」「未チェックのみ表示」「1年中を除外」を追加
+// - ★「状態」セレクトを削除し、位置に「すべてチェック」「すべて解除」ボタンを配置（表示中のfilteredに対して実行）
+// - ★見た目のバランスを整える（filtersGrid / checksRow / 一括ボタン整列）
+// - ★footerが空でも表示領域を奪う問題 → status空の時はfooter自体を非表示
+// - ★ヘッダー揺れ対策（タブ表示のヒステリシス + IntersectionObserver）
 
 const $ = (sel) => document.querySelector(sel);
 const STORAGE_KEY = "acnh_checklist_v4.1";
 
+// ★ 魚影サイズ（No -> 影）
 const FISH_SHADOW_BY_NO = {
   1:"極小",  2:"極小",  3:"小",    4:"中",    5:"大",    6:"大",    7:"極小",  8:"極小",
   9:"小",    10:"極小", 11:"小",   12:"中",   13:"中",   14:"極小", 15:"小",   16:"小",
@@ -68,10 +99,10 @@ const FISH_SHADOW_BY_NO = {
   73:"背びれ",74:"背びれ",75:"背びれ",76:"大",77:"大",78:"超特大",79:"小",80:"超特大"
 };
 
-// ===== Bugs icons =====
+// ===== Bugs menu icon mapping (Bug No. -> Ins index) =====
 const BUG_INS_BY_NO = {
-  1: 0,  2: 1,  3: 2,  4: 3,  5: 72, 6: 73, 7: 74, 8: 4,  9: 5,  10: 6,
-  11: 7, 12: 8, 13: 9, 14: 10,15: 79,16: 13,17: 14,18: 67,19: 32,20: 30,
+  1: 0,  2: 1,  3: 2,  4: 3,  5: 72, 6: 73, 7: 74, 8: 4,  9: 5, 10: 6,
+  11: 7, 12: 8, 13: 9, 14: 10, 15: 79,16: 13,17: 14,18: 67,19: 32,20: 30,
   21: 31,22: 15,23: 16,24: 11,25: 12,26: 17,27: 18,28: 65,29: 19,30: 20,
   31: 69,32: 22,33: 23,34: 24,35: 81,36: 41,37: 33,38: 27,39: 28,40: 76,
   41: 64,42: 78,43: 37,44: 70,45: 44,46: 38,47: 39,48: 82,49: 80,50: 40,
@@ -92,17 +123,21 @@ function getBugIconImgHtmlByNo(no){
   return `<img class="bugIcon" src="${url}" alt="" loading="lazy" decoding="async">`;
 }
 
-// ===== Fish icons (by JP name) =====
+// ===== Fish menu icon mapping (Fish name -> Fish index) =====
 const FISH_ICON_INDEX_BY_NAME = {
-  "タナゴ":0,"オイカワ":1,"フナ":2,"ウグイ":3,"コイ":5,"ニシキゴイ":6,"キンギョ":7,"デメキン":8,"メダカ":9,
-  "ザリガニ":10,"カエル":11,"ドンコ":12,"ドジョウ":13,"ナマズ":14,"ライギョ":16,"ブルーギル":17,"イエローパーチ":18,
-  "ブラックバス":19,"パイク":20,"ワカサギ":21,"アユ":22,"ヤマメ":23,"オオイワナ":24,"イトウ":26,"サケ":27,"キングサーモン":28,
-  "グッピー":29,"エンゼルフィッシュ":30,"ネオンテトラ":31,"ピラニア":32,"アロワナ":33,"ドラド":34,"ガー":35,"ピラルク":36,"クリオネ":37,
-  "タツノオトシゴ":39,"クマノミ":40,"ナンヨウハギ":41,"チョウチョウウオ":42,"ナポレオンフィッシュ":43,"ミノカサゴ":44,"ハリセンボン":45,
-  "アジ":46,"イシダイ":47,"スズキ":48,"タイ":49,"カレイ":50,"ヒラメ":51,"イカ":52,"ウツボ":55,"チョウチンアンコウ":56,"マグロ":57,"カジキ":58,
-  "エイ":59,"マンボウ":60,"シュモクザメ":61,"サメ":62,"シーラカンス":63,"オタマジャクシ":64,"スッポン":65,"シャンハイガニ":66,"ドクターフィッシュ":67,
-  "エンドリケリー":68,"リュウグウノツカイ":69,"ロウニンアジ":70,"ハナヒゲウツボ":71,"ジンベイザメ":72,"フグ":73,"ノコギリザメ":74,"チョウザメ":75,"ティラピア":76,
-  "ベタ":77,"カミツキガメ":78,"ゴールデントラウト":79,"レインボーフィッシュ":80,"アンチョビ":81,"シイラ":82,"コバンザメ":83,"デメニギス":84,"ランチュウ":85
+  "タナゴ":0,"オイカワ":1,"フナ":2,"ウグイ":3,"コイ":5,"ニシキゴイ":6,"キンギョ":7,"デメキン":8,
+  "メダカ":9,"ザリガニ":10,"カエル":11,"ドンコ":12,"ドジョウ":13,"ナマズ":14,"ライギョ":16,
+  "ブルーギル":17,"イエローパーチ":18,"ブラックバス":19,"パイク":20,"ワカサギ":21,"アユ":22,
+  "ヤマメ":23,"オオイワナ":24,"イトウ":26,"サケ":27,"キングサーモン":28,"グッピー":29,
+  "エンゼルフィッシュ":30,"ネオンテトラ":31,"ピラニア":32,"アロワナ":33,"ドラド":34,"ガー":35,
+  "ピラルク":36,"クリオネ":37,"タツノオトシゴ":39,"クマノミ":40,"ナンヨウハギ":41,"チョウチョウウオ":42,
+  "ナポレオンフィッシュ":43,"ミノカサゴ":44,"ハリセンボン":45,"アジ":46,"イシダイ":47,"スズキ":48,
+  "タイ":49,"カレイ":50,"ヒラメ":51,"イカ":52,"ウツボ":55,"チョウチンアンコウ":56,"マグロ":57,
+  "カジキ":58,"エイ":59,"マンボウ":60,"シュモクザメ":61,"サメ":62,"シーラカンス":63,"オタマジャクシ":64,
+  "スッポン":65,"シャンハイガニ":66,"ドクターフィッシュ":67,"エンドリケリー":68,"リュウグウノツカイ":69,
+  "ロウニンアジ":70,"ハナヒゲウツボ":71,"ジンベイザメ":72,"フグ":73,"ノコギリザメ":74,"チョウザメ":75,
+  "ティラピア":76,"ベタ":77,"カミツキガメ":78,"ゴールデントラウト":79,"レインボーフィッシュ":80,"アンチョビ":81,
+  "シイラ":82,"コバンザメ":83,"デメニギス":84,"ランチュウ":85
 };
 const FISH_ICON_BASE = "https://nh-cdn.catalogue.ac/MenuIcon/Fish";
 function getFishIconUrlByName(name){
@@ -129,8 +164,8 @@ function getAllFishShadowOptions(){
 const defaultState = {
   meta: { version: "4.1.22" },
   settings: {
-    hemisphere: "north",
-    nowMode: "auto",
+    hemisphere: "north", // north | south
+    nowMode: "auto",     // auto | manual
     manualMonth: (new Date()).getMonth() + 1,
     manualDay: (new Date()).getDate(),
     manualTime: `${String((new Date()).getHours()).padStart(2,"0")}:00`,
@@ -232,6 +267,7 @@ function saveState() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
 }
 
+// ★修正：空メッセージなら footer 自体を消して表示領域を最大化
 function status(msg){
   const t = String(msg ?? "");
   const el = $("#statusText");
@@ -293,6 +329,7 @@ function escapeHtml(s){
     .replaceAll("'","&#039;");
 }
 
+// -------- data loading (fetch -> inline fallback) --------
 async function loadData(kind){
   try{
     const res = await fetch(`./data/${kind}.json`, {cache:"no-store"});
@@ -323,6 +360,7 @@ function applyFilters(kind, items){
   const f = state.filters[kind] || {};
   const nameQ  = normalizeText(f.name || "");
   const placeQ = normalizeText(f.place || "");
+
   const hemi = (state.settings && state.settings.hemisphere) ? state.settings.hemisphere : "north";
 
   return items.filter(it=>{
@@ -361,9 +399,11 @@ function ensureCompactStyles(){
 .cList{ display:flex; flex-direction:column; gap:8px; }
 .cRow{
   display:block !important;
+  grid-template-columns: none !important;
   gap: 0 !important;
   align-items: stretch !important;
   padding: 0 !important;
+  border-bottom: 0 !important;
   border: 1px solid var(--border);
   background: var(--card);
   border-radius: 14px;
@@ -382,38 +422,26 @@ function ensureCompactStyles(){
   min-width:0; flex:1 1 auto;
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:8px;
 }
 .cBadges{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.cToggle{
+  flex:0 0 auto;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.7);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-weight:900;
+  cursor:pointer;
+}
 .cDetail{ padding: 0 12px 12px 12px; }
 .cGrid{ display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top: 10px; }
 .cItem{ border:1px solid var(--border); background: rgba(255,255,255,.65); border-radius:12px; padding:10px; }
 .cLabel{ font-size:11px; color: var(--muted); font-weight:900; margin-bottom:4px; }
 .cVal{ font-size:13px; font-weight:900; color: var(--text); word-break: break-word; }
 
-/* ★スマホ：一括ボタンを「2つで1行フル幅」 */
-@media (max-width: 900px){
-  .bulkBtns{
-    width:100% !important;
-    display:flex !important;
-    flex-direction:row !important;
-    gap:10px !important;
-    align-items:stretch !important;
-  }
-  .bulkBtns .btn{
-    flex:1 1 0 !important;
-    width:auto !important;
-  }
-}
-
-/* 重要：スマホ幅でテーブルを消してカード一覧を見せる */
 @media (max-width: 900px){
   .card .tableWrap{ display:none !important; }
   .card .cList{ display:flex !important; }
-  .cRow{ cursor:pointer; }
-  .cChk{ cursor:default; }
 }
 @media (min-width: 901px){
   .card .cList{ display:none !important; }
@@ -435,6 +463,7 @@ function renderList(kind, items){
     s.showNowOnly = false;
     s.sortNowFirst = false;
   }
+
   if (s.showNowOnly) filtered = filtered.filter(it => isCatchable(it));
 
   if (s.sortNowFirst) {
@@ -469,10 +498,18 @@ function renderList(kind, items){
     .map(h=>`<option value="${h}" ${curHour===h?"selected":""}>${h}時</option>`).join("");
 
   const manualDisabled = (s.nowMode !== "manual");
-  const showManual = (s.nowMode === "manual");
-
   const placeOptions = buildOptions(items, "place");
   const shadowOpts = (kind==="fish") ? getAllFishShadowOptions() : [];
+
+  // ==========================
+  // ★PCレイアウト要件に合わせて「上の操作UI」を組み直し
+  // 並び：
+  // 半球
+  // Nowモード 月（手動） 時間（手動） すべての時間（手動時のみ）
+  // 場所 魚影（魚のみ） 名前（部分一致）
+  // チェック済のみ 未チェックのみ 1年中を除外 いま狙える いま狙えるのみ いま狙える順（後2つはON時のみ）
+  // すべてチェック すべて解除（「一括」見出し無し）
+  // ==========================
 
   let html = `
     <div class="card">
@@ -483,8 +520,9 @@ function renderList(kind, items){
         <div class="badge">${filtered.length} 件</div>
       </div>
 
+      <!-- ===== PC/共通：上段（設定） ===== -->
       <div class="sectionGrid">
-
+        <!-- 半球 -->
         <div class="fitem">
           <div class="label">半球</div>
           <select id="${kind}-set-hemi">
@@ -493,32 +531,41 @@ function renderList(kind, items){
           </select>
         </div>
 
-        <div class="fitem">
+        <!-- Nowモード + 手動（月/時間/すべての時間） -->
+        <div class="fitem spanAll">
           <div class="label">Nowモード</div>
-          <select id="${kind}-set-nowMode">
-            <option value="auto" ${s.nowMode==="auto"?"selected":""}>自動</option>
-            <option value="manual" ${s.nowMode==="manual"?"selected":""}>手動</option>
-          </select>
-        </div>
 
-        <div class="fitem" style="display:${showManual?"flex":"none"};">
-          <div class="label">月（手動）</div>
-          <select id="${kind}-set-month" ${manualDisabled?"disabled":""}>${monthOpts}</select>
-        </div>
+          <div class="row nowrap" style="gap:10px; align-items:flex-end; flex-wrap:wrap;">
+            <div class="manualStack" style="min-width:180px;">
+              <select id="${kind}-set-nowMode">
+                <option value="auto" ${s.nowMode==="auto"?"selected":""}>自動</option>
+                <option value="manual" ${s.nowMode==="manual"?"selected":""}>手動</option>
+              </select>
+            </div>
 
-        <div class="fitem" style="display:${showManual?"flex":"none"};">
-          <div class="label">時間（手動）</div>
-          <select id="${kind}-set-hour" ${(manualDisabled||s.manualAnytime)?"disabled":""}>${hourOpts}</select>
-        </div>
+            <!-- 手動時だけ表示 -->
+            <div class="row manualRow" style="display:${s.nowMode==="manual"?"flex":"none"}; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+              <div class="manualStack">
+                <div class="inlineLabel">月（手動）</div>
+                <select id="${kind}-set-month" ${manualDisabled?"disabled":""}>${monthOpts}</select>
+              </div>
 
-        <!-- ★上の「すべての時間」見出しは削除し、行内表示だけにする -->
-        <div class="fitem" style="display:${showManual?"flex":"none"};">
-          <label class="row" style="gap:8px; align-items:center; margin-top:22px;">
-            <input type="checkbox" id="${kind}-set-anytime" ${s.manualAnytime?"checked":""} ${manualDisabled?"disabled":""}/>
-            <span class="label">すべての時間</span>
-          </label>
-        </div>
+              <div class="manualStack">
+                <div class="inlineLabel">時間（手動）</div>
+                <select id="${kind}-set-hour" ${(manualDisabled||s.manualAnytime)?"disabled":""}>${hourOpts}</select>
+              </div>
 
+              <label class="row anytimeLabel" style="gap:6px; align-items:center;">
+                <input type="checkbox" id="${kind}-set-anytime" ${s.manualAnytime?"checked":""} ${manualDisabled?"disabled":""}/>
+                <span class="inlineLabel">すべての時間</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PC/共通：中段（場所/魚影/名前） ===== -->
+      <div class="filtersGrid ${kind==="fish" ? "hasShadow" : ""}">
         ${ kind!=="sea" ? `
         <div class="fitem">
           <div class="label">場所</div>
@@ -544,18 +591,12 @@ function renderList(kind, items){
             <button type="button" id="${kind}-f-name-clear" class="clearBtn" aria-label="clear" ${f.name?"" :"disabled"}>×</button>
           </div>
         </div>
+      </div>
 
-        <div class="fitem">
-          <div class="label">一括</div>
-          <div class="bulkBtns">
-            <button type="button" id="${kind}-checkAllBtn" class="btn">すべてチェック</button>
-            <button type="button" id="${kind}-uncheckAllBtn" class="btn">すべて解除</button>
-          </div>
-        </div>
-
+      <!-- ===== PC/共通：下段（チェック群） ===== -->
+      <div class="sectionGrid">
         <div class="fitem spanAll">
-          <div class="row checksRow">
-
+          <div class="row checksRow" style="align-items:center;">
             <label class="row">
               <input type="checkbox" id="${kind}-q-caughtOnly" ${f.caught==="caught"?"checked":""}/>
               <span class="label">チェック済のみ</span>
@@ -589,6 +630,13 @@ function renderList(kind, items){
           </div>
         </div>
 
+        <!-- ★一括（見出し無し） -->
+        <div class="fitem spanAll">
+          <div class="bulkBtns" style="flex-wrap:wrap;">
+            <button type="button" id="${kind}-checkAllBtn" class="btn">すべてチェック</button>
+            <button type="button" id="${kind}-uncheckAllBtn" class="btn">すべて解除</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -611,21 +659,19 @@ function renderList(kind, items){
     const priceText = (it.price ?? "") !== "" ? `${it.price}ベル` : "";
     const placeText = rememberedLocLabel(it.place || "");
 
-    const shadowText = (kind==="fish") ? (FISH_SHADOW_BY_NO[Number(it.no)] || "") : "";
+    const shadowText = (kind==="fish")
+      ? (FISH_SHADOW_BY_NO[Number(it.no)] || "")
+      : "";
 
     const bugIconHtml = (kind==="bugs") ? getBugIconImgHtmlByNo(it.no) : "";
     const fishIconHtml = (kind==="fish") ? getFishIconImgHtmlByName(it.name) : "";
     const iconHtml = bugIconHtml || fishIconHtml;
-
-    // ★スマホ：名前右に「狙える」
-    const mobileNowMark = (s.showNowUI && now) ? `<span class="badge now" aria-label="いま狙える">狙える</span>` : ``;
-
     const nameInnerHtml = (kind==="bugs" || kind==="fish")
-      ? `${iconHtml}<span class="bugNameText">${escapeHtml(it.name)}</span>${mobileNowMark}`
-      : `${escapeHtml(it.name)}${mobileNowMark}`;
+      ? `${iconHtml}<span class="bugNameText">${escapeHtml(it.name)}</span>`
+      : escapeHtml(it.name);
 
     html += `
-      <div class="cRow" data-id="${it.id}">
+      <div class="cRow">
         <div class="cHead">
           <label class="cChk">
             <input type="checkbox" data-act="caught" data-id="${it.id}" ${mk.caught?"checked":""}>
@@ -634,14 +680,20 @@ function renderList(kind, items){
           <div class="cMain">
             <div class="cTopLine">
               <div class="cNo">No${it.no ?? ""}</div>
-              <button type="button" class="cNameBtn" aria-expanded="false">
+              <button type="button" class="cNameBtn" data-act="toggle" data-id="${it.id}" aria-expanded="false">
                 ${nameInnerHtml}
               </button>
             </div>
 
-            <!-- ★スマホ：済バッジは表示しない（ここを空にして高さも増やさない） -->
-            <div class="cBadges"></div>
+            <div class="cBadges">
+              ${(s.showNowUI && now) ? `<span class="badge now">いま狙える</span>` : ``}
+              ${mk.caught ? `<span class="badge">済</span>` : ``}
+            </div>
           </div>
+
+          <button type="button" class="cToggle" data-act="toggle" data-id="${it.id}" aria-label="詳細">
+            詳細
+          </button>
         </div>
 
         <div class="cDetail" data-detail="${it.id}" hidden>
@@ -699,7 +751,7 @@ function renderList(kind, items){
           <tbody>
   `;
 
-  // desktop table（PCは従来どおり）
+  // desktop table
   for (const it of filtered) {
     const mk = state.marks[it.id] || {caught:false};
     const now = isCatchable(it);
@@ -713,14 +765,16 @@ function renderList(kind, items){
     const priceText = (it.price ?? "") !== "" ? `${it.price}ベル` : "";
     const placeText = rememberedLocLabel(it.place || "");
 
-    const shadowText = (kind==="fish") ? (FISH_SHADOW_BY_NO[Number(it.no)] || "") : "";
+    const shadowText = (kind==="fish")
+      ? (FISH_SHADOW_BY_NO[Number(it.no)] || "")
+      : "";
 
     const bugIconHtml = (kind==="bugs") ? getBugIconImgHtmlByNo(it.no) : "";
     const fishIconHtml = (kind==="fish") ? getFishIconImgHtmlByName(it.name) : "";
     const iconHtml = bugIconHtml || fishIconHtml;
 
     html += `
-      <tr>
+      <tr class="">
         <td data-label="済"><input type="checkbox" data-act="caught" data-id="${it.id}" ${mk.caught?"checked":""}></td>
         <td data-label="No">${it.no ?? ""}</td>
         <td class="td-name" data-label="名前">
@@ -765,6 +819,7 @@ function renderList(kind, items){
     }
   };
 
+  // Settings bindings
   (document.querySelector(`#${kind}-set-hemi`) || {addEventListener:()=>{}}).addEventListener("change",(e)=>{ state.settings.hemisphere = e.target.value; rerender(); });
   (document.querySelector(`#${kind}-set-nowMode`) || {addEventListener:()=>{}}).addEventListener("change",(e)=>{ state.settings.nowMode = e.target.value; rerender(); });
 
@@ -779,8 +834,10 @@ function renderList(kind, items){
     state.settings.manualTime = `${pad2(h)}:00`;
     rerender();
   });
+
   (document.querySelector(`#${kind}-set-anytime`) || {addEventListener:()=>{}}).addEventListener("change",(e)=>{ state.settings.manualAnytime = e.target.checked; rerender(); });
 
+  // いま狙える表示（ON/OFF）
   (document.querySelector(`#${kind}-set-showNowUI`) || {addEventListener:()=>{}}).addEventListener("change",(e)=>{
     state.settings.showNowUI = e.target.checked;
     if (!e.target.checked){
@@ -793,6 +850,7 @@ function renderList(kind, items){
   (document.querySelector(`#${kind}-set-showNowOnly`) || {addEventListener:()=>{}}).addEventListener("change",(e)=>{ state.settings.showNowOnly = e.target.checked; rerender(); });
   (document.querySelector(`#${kind}-set-sortNowFirst`) || {addEventListener:()=>{}}).addEventListener("change",(e)=>{ state.settings.sortNowFirst = e.target.checked; rerender(); });
 
+  // ★全件チェック／解除（表示中のfilteredに対して実行）
   (document.querySelector(`#${kind}-checkAllBtn`) || {addEventListener:()=>{}}).addEventListener("click", ()=>{
     for (const it of filtered) state.marks[it.id] = { caught: true };
     rerender();
@@ -802,20 +860,25 @@ function renderList(kind, items){
     rerender();
   });
 
+  // ★クイック絞り込み：チェック済のみ／未チェックのみ（相互排他、f.caught を操作）
   (document.querySelector(`#${kind}-q-caughtOnly`) || {addEventListener:()=>{}}).addEventListener("change", (e)=>{
-    state.filters[kind].caught = e.target.checked ? "caught" : "all";
+    if (e.target.checked) state.filters[kind].caught = "caught";
+    else state.filters[kind].caught = "all";
     rerender();
   });
   (document.querySelector(`#${kind}-q-uncaughtOnly`) || {addEventListener:()=>{}}).addEventListener("change", (e)=>{
-    state.filters[kind].caught = e.target.checked ? "uncaught" : "all";
+    if (e.target.checked) state.filters[kind].caught = "uncaught";
+    else state.filters[kind].caught = "all";
     rerender();
   });
 
+  // ★1年中（1〜12月）を除外
   (document.querySelector(`#${kind}-f-excludeAllYear`) || {addEventListener:()=>{}}).addEventListener("change", (e)=>{
     state.filters[kind].excludeAllYear = e.target.checked;
     rerender();
   });
 
+  // ★魚影（fish）の絞り込み
   if (kind === "fish"){
     (document.querySelector(`#${kind}-f-shadow`) || {addEventListener:()=>{}}).addEventListener("change",(e)=>{
       state.filters.fish.shadow = e.target.value;
@@ -823,6 +886,7 @@ function renderList(kind, items){
     });
   }
 
+  // Filters（debounce対応）
   const rerenderDebounced = (() => {
     if (!window.__acnhDebounce) window.__acnhDebounce = { t: null };
     if (!window.__acnhIME) window.__acnhIME = { composing: false };
@@ -839,34 +903,44 @@ function renderList(kind, items){
     };
   })();
 
-  const bindName = () => {
-    const el = document.querySelector(`#${kind}-f-name`);
+  const bind = (id, key, mode) => {
+    const el = document.querySelector(`#${kind}-${id}`);
     if (!el) return;
 
-    el.addEventListener("compositionstart", () => {
-      if (!window.__acnhIME) window.__acnhIME = { composing: false };
-      window.__acnhIME.composing = true;
-      if (window.__acnhDebounce) clearTimeout(window.__acnhDebounce.t);
-    });
-    el.addEventListener("compositionend", () => {
-      if (!window.__acnhIME) window.__acnhIME = { composing: false };
-      window.__acnhIME.composing = false;
-      state.filters[kind].name = el.value;
-      rerender();
-    });
-    el.addEventListener("input", () => {
-      state.filters[kind].name = el.value;
-      if (window.__acnhIME && window.__acnhIME.composing) return;
-      rerenderDebounced();
-    });
+    const isText = el.tagName === "INPUT" && (el.type === "text" || el.type === "search" || !el.type);
+
+    const commit = () => {
+      state.filters[kind][key] = el.value;
+      if (mode === "debounce") rerenderDebounced();
+      else rerender();
+    };
+
+    if (isText) {
+      el.addEventListener("compositionstart", () => {
+        if (!window.__acnhIME) window.__acnhIME = { composing: false };
+        window.__acnhIME.composing = true;
+        if (window.__acnhDebounce) clearTimeout(window.__acnhDebounce.t);
+      });
+      el.addEventListener("compositionend", () => {
+        if (!window.__acnhIME) window.__acnhIME = { composing: false };
+        window.__acnhIME.composing = false;
+        commit();
+      });
+      el.addEventListener("input", () => {
+        state.filters[kind][key] = el.value;
+        if (window.__acnhIME && window.__acnhIME.composing) return;
+        if (mode === "debounce") rerenderDebounced();
+        else rerender();
+      });
+    } else {
+      el.addEventListener("change", commit);
+    }
   };
-  bindName();
 
-  if (kind !== "sea"){
-    const el = document.querySelector(`#${kind}-f-place`);
-    if (el) el.addEventListener("change",(e)=>{ state.filters[kind].place = e.target.value; rerender(); });
-  }
+  if (kind !== "sea") bind("f-place", "place");
+  bind("f-name", "name", "debounce");
 
+  // Name clear button
   const clearBtn = viewEl.querySelector(`#${kind}-f-name-clear`);
   if (clearBtn){
     clearBtn.addEventListener("click", ()=>{
@@ -877,6 +951,7 @@ function renderList(kind, items){
     });
   }
 
+  // Row checkbox (table + list)
   viewEl.querySelectorAll(`[data-act="caught"]`).forEach(el=>{
     el.addEventListener("change",(e)=>{
       const id = e.target.getAttribute("data-id");
@@ -885,15 +960,13 @@ function renderList(kind, items){
     });
   });
 
+  // Mobile: detail toggle
   if (!viewEl.__acnhToggleBound) {
     viewEl.__acnhToggleBound = true;
     viewEl.addEventListener("click", (e)=>{
-      if (e.target.closest && (e.target.closest(".cChk") || e.target.matches('input[type="checkbox"]'))) return;
-
-      const row = e.target.closest && e.target.closest(".cRow");
-      if (!row) return;
-
-      const id = row.getAttribute("data-id");
+      const trg = e.target.closest && e.target.closest(`[data-act="toggle"]`);
+      if (!trg) return;
+      const id = trg.getAttribute("data-id");
       if (!id) return;
 
       const detail = viewEl.querySelector(`[data-detail="${id}"]`);
@@ -901,7 +974,7 @@ function renderList(kind, items){
 
       detail.hidden = !detail.hidden;
 
-      const btn = row.querySelector(`.cNameBtn`);
+      const btn = viewEl.querySelector(`.cNameBtn[data-id="${id}"]`);
       if (btn) btn.setAttribute("aria-expanded", detail.hidden ? "false" : "true");
     });
   }
@@ -926,6 +999,7 @@ async function ensureLoaded(){
   if (!cache.fish) cache.fish = await loadData("fish");
   if (!cache.bugs) cache.bugs = await loadData("bugs");
   if (!cache.sea)  cache.sea  = await loadData("sea");
+
   ensureInitialMarks([...cache.fish, ...cache.bugs, ...cache.sea]);
 }
 
@@ -955,17 +1029,23 @@ async function render(){
         try { el.focus({preventScroll:true}); } catch(_) { try { el.focus(); } catch(__) {} }
         if (sel && typeof el.setSelectionRange === "function"){
           const len = String(el.value||"").length;
-          const s0 = Math.min(sel.start, len);
-          const t0 = Math.min(sel.end, len);
-          try { el.setSelectionRange(s0, t0); } catch(_) {}
+          const s = Math.min(sel.start, len);
+          const t = Math.min(sel.end, len);
+          try { el.setSelectionRange(s, t); } catch(_) {}
         }
       }
     }
   }
 }
 
+// tabs
 document.querySelectorAll(".tab").forEach(btn => btn.addEventListener("click", ()=> setView(btn.dataset.view)));
 
+/**
+ * smart header:
+ * - 「少しだけスクロール」の領域で tabs が出たり消えたりしないように、
+ *   IntersectionObserver + ヒステリシスで安定化
+ */
 (function initSmartHeader(){
   const header = document.querySelector(".topbar");
   if(!header) return;

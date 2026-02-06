@@ -107,11 +107,11 @@ body{
 .tabs{
   display:inline-flex;
   gap:8px;
-  padding:0;                 /* ← 皿の原因になる padding/bg/border を撤去 */
+  padding:0;
   margin:0;
-  background:transparent;    /* ← 皿を撤去 */
-  border:0;                  /* ← 皿を撤去 */
-  box-shadow:none;           /* ← 皿を撤去 */
+  background:transparent;
+  border:0;
+  box-shadow:none;
   flex-wrap:nowrap;
 }
 
@@ -121,8 +121,8 @@ body{
   background: rgba(255,255,255,.78);
   color: rgba(0,0,0,.82);
   border-radius:999px;
-  padding: 8px 12px;         /* 少し細め */
-  min-height:40px;           /* タップしやすさは維持 */
+  padding: 8px 12px;
+  min-height:40px;
   cursor:pointer;
   font-weight:900;
   font-size:14px;
@@ -155,14 +155,16 @@ body{
 .topbar.compact .brandTitle{ font-size:15px; }
 .topbar.compact .tab{ min-height:36px; padding:7px 10px; font-size:13px; }
 
-/* mobile: 2段にしてスッキリ & 高さを抑える */
+/* mobile */
 @media (max-width: 640px){
   .topbar{ padding-bottom: 6px; }
+
   .topbarInner{
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
   }
+
   .tabsWrap{ justify-content:center; }
   .tabs{
     width:100%;
@@ -175,7 +177,47 @@ body{
     min-height:38px;
     padding:8px 10px;
   }
+
   .brandSub{ display:none; }
+
+  /* ==============================
+     ★ここが本題：スマホで compact 時は「タブだけ」表示
+     - ロゴ/タイトル（.brand）を非表示
+     - 空白が残らないように、レイアウトをタブに寄せる
+     ============================== */
+  .topbar.compact{
+    /* さらに詰める（必要なら微調整OK） */
+    padding:
+      calc(6px + env(safe-area-inset-top))
+      calc(10px + env(safe-area-inset-right))
+      6px
+      calc(10px + env(safe-area-inset-left));
+  }
+
+  /* ロゴ＋タイトル行を丸ごと消す（= ロゴもタイトルも同じ処理） */
+  .topbar.compact .brand{ display:none !important; }
+
+  /* 2段レイアウトを維持したままだと gap が残るので 0 に */
+  .topbar.compact .topbarInner{
+    gap: 0 !important;
+  }
+
+  /* タブを先頭・フル幅で表示（余白を作らない） */
+  .topbar.compact .tabsWrap{
+    justify-content:center;
+    width:100%;
+    margin:0;
+  }
+  .topbar.compact .tabs{
+    width:100%;
+    justify-content:space-between;
+    gap:6px;
+  }
+  .topbar.compact .tab{
+    flex:1 1 auto;
+    min-height:38px;
+    padding:8px 10px;
+  }
 }
 
 /* ========= layout ========= */
@@ -224,7 +266,6 @@ select:disabled,input:disabled{opacity:.55}
   padding:9px 12px;
   border-radius:12px;
   cursor:pointer;
-  /* 「すべてチェック / すべて解除」が他より太く見えないように */
   font-weight:800;
 }
 .btn:active{ transform: translateY(1px); }
@@ -286,7 +327,7 @@ select:disabled,input:disabled{opacity:.55}
   .manualRow .manualStack{ width:100%; }
   .manualRow .manualStack select{ width:100%; }
   .anytimeLabel{ width:100%; }
-  /* チェック項目：スマホは2列で左揃え（縦幅を圧縮） */
+
   .checksRow{
     display:grid;
     grid-template-columns: 1fr 1fr;
@@ -366,8 +407,6 @@ select:disabled,input:disabled{opacity:.55}
 }
 
 /* ========= footer ========= */
-/* app.js の status("") で display:none にされる前提。
-   “常時固定” をやめ、出る時だけ自然に表示（下の領域を奪わない） */
 .footer{
   position: sticky;
   bottom: 0;
@@ -385,7 +424,6 @@ select:disabled,input:disabled{opacity:.55}
 }
 
 /* ========= compact list base ========= */
-/* app.js で !important 付きの注入CSSが入るので、ここは保険程度 */
 .cList{ display:flex; flex-direction:column; gap:8px; }
 .cRow{
   border: 1px solid var(--border);
@@ -426,19 +464,8 @@ select:disabled,input:disabled{opacity:.55}
   .checksRow{ grid-template-columns: 1fr; }
 }
 
-/* Bug menu icons */
-.bugIcon{
-  width:22px; height:22px;
-  flex:0 0 auto;
-  border-radius:6px;
-
-  /* 追記 */
-  display:block;
-  min-width:22px;
-  min-height:22px;
-}
-
-/* Fish menu icons */
+/* Bug/Fish menu icons */
+.bugIcon,
 .fishIcon{
   width:22px; height:22px;
   flex:0 0 auto;
@@ -454,193 +481,23 @@ select:disabled,input:disabled{opacity:.55}
   text-overflow:ellipsis;
 }
 
-/* ===== mobile: 名前を2行まで表示して見切れを減らす ===== */
+/* ===== mobile list layout (kept minimal here) ===== */
 @media (max-width: 640px){
-  .cHead{ align-items:flex-start; } /* 上寄せ（縦に伸びても自然） */
-
-  .cTopLine{
-    align-items:flex-start;
-    gap:8px;
-  }
-
+  .cHead{ align-items:flex-start; }
   .cNameBtn{
-    white-space:normal;         /* 1行固定を解除 */
-    overflow:visible;           /* 省略記号制御を line-clamp に任せる */
-    text-overflow:clip;
-    display:-webkit-box;        /* 2行クランプ */
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;      /* ← 2行まで */
-    line-height:1.2;
-  }
-
-  .bugNameText{                 /* もし span を使っている場合の保険 */
     white-space:normal;
+    overflow:hidden;
+    text-overflow:clip;
     display:-webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
-    overflow:hidden;
-  }
-}
-
-/* ===== icon size tweak (mobile only) ===== */
-@media (max-width: 640px){
-  .bugIcon,
-  .fishIcon{
-    width:26px;
-    height:26px;
-    min-width:26px;
-    min-height:26px;
-    border-radius:7px;
-  }
-
-  /* ついでに、名前との間隔を少しだけ詰めたい場合（任意） */
-  /* .cNameBtn{ gap:6px; } */
-}
-
-/* ===== mobile layout: No | icon(48x40) | name | detail | checkbox ===== */
-@media (max-width: 640px){
-
-  /* 画像サイズ（虫/魚） */
-  .bugIcon,
-  .fishIcon{
-    width:48px;
-    height:40px;
-    min-width:48px;
-    min-height:40px;
-    border-radius:8px;
-    object-fit:contain; /* アイコン絵を潰さない */
-  }
-
-  /* ヘッダを横一列に並べる */
-  .cHead{
-    display:grid;
-    grid-template-columns: auto 48px 1fr auto auto; /* No | icon | name | 詳細 | ☑ */
-    column-gap:10px;
-    align-items:center;
-  }
-
-  /* No（既存の .cNo をそのまま使う想定）
-     もし今 No が .cTopLine 内なら、.cTopLine を1列目に配置 */
-  .cTopLine{
-    grid-column:1;
-    grid-row:1;
-    margin:0;
-  }
-  .cNo{ margin:0; }
-
-  /* 名前ボタン（画像＋名前）を「アイコン列＋名前列」に展開する */
-  .cNameBtn{
-    grid-column:2 / 4; /* icon + name */
-    grid-row:1;
-
-    display:grid;
-    grid-template-columns: 48px 1fr;
-    column-gap:10px;
-    align-items:center;
-
-    /* 文字は2行まで、縦に伸びる */
-    white-space:normal;
-    overflow:hidden;
-    text-overflow:clip;
     line-height:1.2;
   }
-
-  /* 画像は左カラムに固定 */
-  .cNameBtn > img.bugIcon,
-  .cNameBtn > img.fishIcon{
-    grid-column:1;
-    grid-row:1;
-    justify-self:start;
-  }
-
-  /* 名前テキストは右カラム、2行クランプ */
   .bugNameText{
-    grid-column:2;
-    grid-row:1;
-    min-width:0;
-
-    display:-webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow:hidden;
-  }
-
-  /* 詳細ボタン */
-  .cToggle{
-    grid-column:4;
-    grid-row:1;
-    align-self:center;
-  }
-
-  /* チェックボックス（☑）を一番右へ */
-  .cChk{
-    grid-column:5;
-    grid-row:1;
-    justify-self:end;
-  }
-
-  /* もともと .cHead が flex 前提なので、余計な余白があれば抑える */
-  .cMain{ width:100%; }
-}
-
-@media (max-width: 640px){
-
-  /* 詳細ボタンは消す */
-  .cToggle{ display:none !important; }
-
-  /* No | icon(48x40) | name | checkbox */
-  .cHead{
-    display:grid;
-    grid-template-columns: auto 48px 1fr auto;
-    column-gap:10px;
-    align-items:center;
-  }
-
-  /* No は1列目 */
-  .cTopLine{ grid-column:1; grid-row:1; margin:0; }
-
-  /* 名前ボタン（画像＋名前）は2〜3列目 */
-  .cNameBtn{
-    grid-column:2 / 4;
-    grid-row:1;
-
-    display:grid;
-    grid-template-columns: 48px 1fr;
-    column-gap:10px;
-    align-items:center;
-
     white-space:normal;
-    overflow:hidden;
-    text-overflow:clip;
-    line-height:1.2;
-  }
-
-  /* 画像 */
-  .cNameBtn > img.bugIcon,
-  .cNameBtn > img.fishIcon{
-    grid-column:1;
-    grid-row:1;
-    justify-self:start;
-  }
-
-  /* 名前（2行まで） */
-  .bugNameText{
-    grid-column:2;
-    grid-row:1;
-    min-width:0;
     display:-webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     overflow:hidden;
   }
-
-  /* ☑ は右端 */
-  .cChk{
-    grid-column:4;
-    grid-row:1;
-    justify-self:end;
-  }
-
-  /* タップできることを示す（任意） */
-  .cNameBtn{ cursor:pointer; }
 }
