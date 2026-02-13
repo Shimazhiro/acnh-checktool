@@ -1,0 +1,732 @@
+[
+  {
+    "id": "fossil-1",
+    "category": "fossil",
+    "no": 1,
+    "name": "アンキロサウルスのあたま",
+    "price": 3500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-2",
+    "category": "fossil",
+    "no": 2,
+    "name": "アンキロサウルスのからだ",
+    "price": 3000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-3",
+    "category": "fossil",
+    "no": 3,
+    "name": "アンキロサウルスのしっぽ",
+    "price": 2500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-4",
+    "category": "fossil",
+    "no": 4,
+    "name": "アーケロンのあたま",
+    "price": 4000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-5",
+    "category": "fossil",
+    "no": 5,
+    "name": "アーケロンのからだ",
+    "price": 3500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-6",
+    "category": "fossil",
+    "no": 6,
+    "name": "メガセロプスのあたま",
+    "price": 4500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-7",
+    "category": "fossil",
+    "no": 7,
+    "name": "メガセロプスのからだ",
+    "price": 3500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-8",
+    "category": "fossil",
+    "no": 8,
+    "name": "メガセロプスのしっぽ",
+    "price": 3000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-9",
+    "category": "fossil",
+    "no": 9,
+    "name": "ディメトロドンのあたま",
+    "price": 5500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-10",
+    "category": "fossil",
+    "no": 10,
+    "name": "ディメトロドンのからだ",
+    "price": 5000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-11",
+    "category": "fossil",
+    "no": 11,
+    "name": "イグアノドンのあたま",
+    "price": 4000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-12",
+    "category": "fossil",
+    "no": 12,
+    "name": "イグアノドンのからだ",
+    "price": 3500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-13",
+    "category": "fossil",
+    "no": 13,
+    "name": "イグアノドンのしっぽ",
+    "price": 3000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-14",
+    "category": "fossil",
+    "no": 14,
+    "name": "オフタルモサウルスのあたま",
+    "price": 2500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-15",
+    "category": "fossil",
+    "no": 15,
+    "name": "オフタルモサウルスのからだ",
+    "price": 2000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-16",
+    "category": "fossil",
+    "no": 16,
+    "name": "マンモスのあたま",
+    "price": 3000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-17",
+    "category": "fossil",
+    "no": 17,
+    "name": "マンモスのからだ",
+    "price": 2500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-18",
+    "category": "fossil",
+    "no": 18,
+    "name": "パキケファロのあたま",
+    "price": 4000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-19",
+    "category": "fossil",
+    "no": 19,
+    "name": "パキケファロのからだ",
+    "price": 3500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-20",
+    "category": "fossil",
+    "no": 20,
+    "name": "パラサウロロフスのあたま",
+    "price": 3500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-21",
+    "category": "fossil",
+    "no": 21,
+    "name": "パラサウロロフスのからだ",
+    "price": 3000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-22",
+    "category": "fossil",
+    "no": 22,
+    "name": "パラサウロロフスのしっぽ",
+    "price": 2500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-23",
+    "category": "fossil",
+    "no": 23,
+    "name": "プテラノドンのあたま",
+    "price": 4000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-24",
+    "category": "fossil",
+    "no": 24,
+    "name": "プテラノドンのうよく",
+    "price": 4500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-25",
+    "category": "fossil",
+    "no": 25,
+    "name": "プテラノドンのさよく",
+    "price": 4500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-26",
+    "category": "fossil",
+    "no": 26,
+    "name": "ディノニクスのあたま",
+    "price": 3000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-27",
+    "category": "fossil",
+    "no": 27,
+    "name": "ディノニクスのしっぽ",
+    "price": 2500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-28",
+    "category": "fossil",
+    "no": 28,
+    "name": "スミロドンのあたま",
+    "price": 2500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-29",
+    "category": "fossil",
+    "no": 29,
+    "name": "スミロドンのからだ",
+    "price": 2000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-30",
+    "category": "fossil",
+    "no": 30,
+    "name": "ディプロドクスのあたま",
+    "price": 5000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-31",
+    "category": "fossil",
+    "no": 31,
+    "name": "ディプロドクスのくび",
+    "price": 4500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-32",
+    "category": "fossil",
+    "no": 32,
+    "name": "ディプロドクスのむね",
+    "price": 4000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-33",
+    "category": "fossil",
+    "no": 33,
+    "name": "ディプロドクスのこし",
+    "price": 4500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-34",
+    "category": "fossil",
+    "no": 34,
+    "name": "ディプロドクスのしっぽ",
+    "price": 5000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-35",
+    "category": "fossil",
+    "no": 35,
+    "name": "スピノサウルスのあたま",
+    "price": 4000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-36",
+    "category": "fossil",
+    "no": 36,
+    "name": "スピノサウルスのからだ",
+    "price": 3000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-37",
+    "category": "fossil",
+    "no": 37,
+    "name": "スピノサウルスのしっぽ",
+    "price": 2500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-38",
+    "category": "fossil",
+    "no": 38,
+    "name": "ステゴサウルスのあたま",
+    "price": 5000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-39",
+    "category": "fossil",
+    "no": 39,
+    "name": "ステゴサウルスのからだ",
+    "price": 4500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-40",
+    "category": "fossil",
+    "no": 40,
+    "name": "ステゴサウルスのしっぽ",
+    "price": 4000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-41",
+    "category": "fossil",
+    "no": 41,
+    "name": "フタバサウルスのあたま",
+    "price": 4000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-42",
+    "category": "fossil",
+    "no": 42,
+    "name": "フタバサウルスのからだ",
+    "price": 4500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-43",
+    "category": "fossil",
+    "no": 43,
+    "name": "フタバサウルスのしっぽ",
+    "price": 4500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-44",
+    "category": "fossil",
+    "no": 44,
+    "name": "Tレックスのあたま",
+    "price": 6000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-45",
+    "category": "fossil",
+    "no": 45,
+    "name": "Tレックスのからだ",
+    "price": 5500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-46",
+    "category": "fossil",
+    "no": 46,
+    "name": "Tレックスのしっぽ",
+    "price": 5000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-47",
+    "category": "fossil",
+    "no": 47,
+    "name": "トリケラトプスのあたま",
+    "price": 5500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-48",
+    "category": "fossil",
+    "no": 48,
+    "name": "トリケラトプスのからだ",
+    "price": 5000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-49",
+    "category": "fossil",
+    "no": 49,
+    "name": "トリケラトプスのしっぽ",
+    "price": 4500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-50",
+    "category": "fossil",
+    "no": 50,
+    "name": "コハク",
+    "price": 1200,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-51",
+    "category": "fossil",
+    "no": 51,
+    "name": "アンモナイト",
+    "price": 1100,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-52",
+    "category": "fossil",
+    "no": 52,
+    "name": "ウンコのかせき",
+    "price": 1100,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-53",
+    "category": "fossil",
+    "no": 53,
+    "name": "しそちょう",
+    "price": 1300,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-54",
+    "category": "fossil",
+    "no": 54,
+    "name": "あしあとのかせき",
+    "price": 1000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-55",
+    "category": "fossil",
+    "no": 55,
+    "name": "アウストラロピテクス",
+    "price": 1100,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-56",
+    "category": "fossil",
+    "no": 56,
+    "name": "サメのはのかせき",
+    "price": 1000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-57",
+    "category": "fossil",
+    "no": 57,
+    "name": "さんようちゅう",
+    "price": 1300,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-58",
+    "category": "fossil",
+    "no": 58,
+    "name": "アノマロカリス",
+    "price": 2000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-59",
+    "category": "fossil",
+    "no": 59,
+    "name": "メガロケロスのみぎはんしん",
+    "price": 5500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-60",
+    "category": "fossil",
+    "no": 60,
+    "name": "メガロケロスのひだりはんしん",
+    "price": 4000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-61",
+    "category": "fossil",
+    "no": 61,
+    "name": "ダンクルオステウス",
+    "price": 3500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-62",
+    "category": "fossil",
+    "no": 62,
+    "name": "ミロクンミンギア",
+    "price": 1500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-63",
+    "category": "fossil",
+    "no": 63,
+    "name": "ユーステノプテロン",
+    "price": 2000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-64",
+    "category": "fossil",
+    "no": 64,
+    "name": "アカントステガ",
+    "price": 2000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-65",
+    "category": "fossil",
+    "no": 65,
+    "name": "ジュラマイア",
+    "price": 1500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-66",
+    "category": "fossil",
+    "no": 66,
+    "name": "ブラキオサウルスのあたま",
+    "price": 6000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-67",
+    "category": "fossil",
+    "no": 67,
+    "name": "ブラキオサウルスのむね",
+    "price": 5500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-68",
+    "category": "fossil",
+    "no": 68,
+    "name": "ブラキオサウルスのこし",
+    "price": 5000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-69",
+    "category": "fossil",
+    "no": 69,
+    "name": "ブラキオサウルスのしっぽ",
+    "price": 5500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-70",
+    "category": "fossil",
+    "no": 70,
+    "name": "ケツァルコアトルスのあたま",
+    "price": 4500,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-71",
+    "category": "fossil",
+    "no": 71,
+    "name": "ケツァルコアトルスのうよく",
+    "price": 5000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-72",
+    "category": "fossil",
+    "no": 72,
+    "name": "ケツァルコアトルスのさよく",
+    "price": 5000,
+    "initial": {
+      "caught": false
+    }
+  },
+  {
+    "id": "fossil-73",
+    "category": "fossil",
+    "no": 73,
+    "name": "ディプロドクスのしっぽのさき",
+    "price": 4000,
+    "initial": {
+      "caught": false
+    }
+  }
+]

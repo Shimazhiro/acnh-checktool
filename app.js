@@ -152,57 +152,55 @@ function getFishIconImgHtmlByName(name){
   return `<img class="fishIcon" src="${url}" alt="" loading="lazy" decoding="async">`;
 }
 
-// ===== Sea creatures icons (local assets) =====
-// NOTE: Sea images are bundled in ./assets/sea/ (offline-friendly).
-const SEA_ICON_BASE = "./assets/sea/";
-const SEA_ICON_FILE_BY_NAME = {
-  "ワカメ":"Wakame.png",
-  "ウミブドウ":"Umibudou.png",
-  "ナマコ":"Namako.png",
-  "センジュナマコ":"Senjunamako.png",
-  "ヒトデ":"Hitode.png",
-  "ウニ":"Uni.png",
-  "パイプウニ":"Paipuuni.png",
-  "イソギンチャク":"Isogintyaku.png",
-  "ミズクラゲ":"Mizukurage.png",
-  "ウミウシ":"Umiushi.png",
-  "アコヤガイ":"Akoyagai.png",
-  "ムールガイ":"Muhrugai.png",
-  "オイスター":"Kaki.png",
-  "ホタテ":"Hotate.png",
-  "バイガイ":"Baigai.png",
-  "サザエ":"Sazae.png",
-  "アワビ":"Awabi.png",
-  "オオシャコガイ":"Shakogai.png",
-  "オウムガイ":"Oumugai.png",
-  "タコ":"Tako.png",
-  "メンダコ":"Mendako.png",
-  "コウモリダコ":"Koumoridako.png",
-  "ホタルイカ":"Hotaruika.png",
-  "ガザミ":"Gazami.png",
-  "ダンジネスクラブ":"DungenessCrab.png",
-  "ズワイガニ":"Zuwaigani.png",
-  "タラバガニ":"Tarabagani.png",
-  "フジツボ":"Fujitsubo.png",
-  "タカアシガニ":"Takaashigani.png",
-  "クルマエビ":"Kurumaebi.png",
-  "アマエビ":"Amaebi.png",
-  "シャコ":"Shako.png",
-  "イセエビ":"Iseebi.png",
-  "ロブスター":"Robusuta.png",
-  "ダイオウグソクムシ":"Daiougusokumushi.png",
-  "カブトガニ":"Kabutogani.png",
-  "ホヤ":"Hoya.png",
-  "チンアナゴ":"Chinanago.png",
-  "ヒラムシ":"Hiramushi.png",
-  "カイロウドウケツ":"Kairoudouketsu.png"
+// ===== Sea (local icons) =====
+const SEA_LOCAL_ICON_BY_NAME = {
+  "ワカメ": "Wakame.png",
+  "ナマコ": "Namako.png",
+  "センジュナマコ": "Senjunamako.png",
+  "ウミブドウ": "Umibudou.png",
+  "ウニ": "Uni.png",
+  "パイプウニ": "Paipuuni.png",
+  "イソギンチャク": "Isogintyaku.png",
+  "ミズクラゲ": "Mizukurage.png",
+  "ウミウシ": "Umiushi.png",
+  "ヒトデ": "Hitode.png",
+  "アコヤガイ": "Akoyagai.png",
+  "ムールガイ": "Muhrugai.png",
+  "オイスター": "Kaki.png",
+  "ホタテ": "Hotate.png",
+  "バイガイ": "Baigai.png",
+  "サザエ": "Sazae.png",
+  "アワビ": "Awabi.png",
+  "オオシャコガイ": "Shakogai.png",
+  "オウムガイ": "Oumugai.png",
+  "タコ": "Tako.png",
+  "メンダコ": "Mendako.png",
+  "コウモリダコ": "Koumoridako.png",
+  "ホタルイカ": "Hotaruika.png",
+  "ガザミ": "Gazami.png",
+  "ダンジネスクラブ": "DungenessCrab.png",
+  "ズワイガニ": "Zuwaigani.png",
+  "タラバガニ": "Tarabagani.png",
+  "フジツボ": "Fujitsubo.png",
+  "タカアシガニ": "Takaashigani.png",
+  "クルマエビ": "Kurumaebi.png",
+  "アマエビ": "Amaebi.png",
+  "シャコ": "Shako.png",
+  "イセエビ": "Iseebi.png",
+  "ロブスター": "robusuta-.png",
+  "ダイオウグソクムシ": "Daiougusokumushi.png",
+  "カブトガニ": "Kabutogani.png",
+  "ホヤ": "Hoya.png",
+  "チンアナゴ": "Chinanago.png",
+  "ヒラムシ": "Hiramushi.png",
+  "カイロウドウケツ": "Kairoudouketsu.png",
 };
+
 function getSeaIconUrlByName(name){
-  const key = (name ?? "").trim();
-  const file = SEA_ICON_FILE_BY_NAME[key];
-  if (!file) return "";
-  // filenames are ASCII, but encodeURIComponent keeps it robust.
-  return `${SEA_ICON_BASE}${encodeURIComponent(file)}`;
+  const key = String(name ?? "").trim();
+  const fn = SEA_LOCAL_ICON_BY_NAME[key] || "";
+  if (!fn) return "";
+  return `./assets/sea/${fn}`;
 }
 function getSeaIconImgHtmlByName(name){
   const url = getSeaIconUrlByName(name);
@@ -210,6 +208,18 @@ function getSeaIconImgHtmlByName(name){
   return `<img class="seaIcon" src="${url}" alt="" loading="lazy" decoding="async">`;
 }
 
+// ===== Fossil (local icons) =====
+function getFossilIconUrlByName(name){
+  const key = String(name ?? "").trim();
+  if (!key) return "";
+  const fn = encodeURIComponent(key) + ".png";
+  return `./assets/fossil/${fn}`;
+}
+function getFossilIconImgHtmlByName(name){
+  const url = getFossilIconUrlByName(name);
+  if (!url) return "";
+  return `<img class="fossilIcon" src="${url}" alt="" loading="lazy" decoding="async">`;
+}
 
 function getFishShadowLabelByNo(no){
   const n = Number(no);
@@ -236,7 +246,8 @@ const defaultState = {
   filters: {
     fish: { caught: "all", place: "", shadow: "", name: "", excludeAllYear: false },
     bugs: { caught: "all", place: "", name: "", excludeAllYear: false },
-    sea:  { caught: "all", name: "", excludeAllYear: false }
+    sea:  { caught: "all", name: "", excludeAllYear: false },
+    fossil: { caught: "all", name: "" }
   },
   marks: {},
   tab: "fish"
@@ -284,7 +295,7 @@ function migrateIfNeeded(obj){
     else merged.marks[k] = { caught: false };
   }
 
-  ["fish","bugs","sea"].forEach(v=>{
+  ["fish","bugs","sea","fossil"].forEach(v=>{
     merged.filters[v] = { ...deepClone(defaultState.filters[v]), ...(merged.filters[v] || {}) };
   });
 
@@ -495,8 +506,7 @@ function ensureCompactStyles(){
 .cNo{ font-weight:900; font-size:12px; color: var(--muted); flex:0 0 auto; }
 .cIconBig{ flex:0 0 auto; display:flex; align-items:center; }
 .cIconBig .bugIcon,
-.cIconBig .fishIcon,
-.cIconBig .seaIcon{ width:34px; height:34px; border-radius:10px; min-width:34px; min-height:34px; }
+.cIconBig .fishIcon{ width:34px; height:34px; border-radius:10px; min-width:34px; min-height:34px; }
 .cNameLine{ flex:1 1 auto; min-width:0; display:flex; align-items:center; }
 .cNameText{ font-weight:950; font-size:15px; color: var(--text); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .badge.now.inlineNow{ margin-left:auto; }
@@ -1089,11 +1099,262 @@ html += `
   }
 }
 
+
+function renderFossilList(items){
+  ensureCompactStyles();
+
+  const kind = "fossil";
+  const f = state.filters[kind] || { caught: "all", name: "" };
+
+  let filtered = applyFilters(kind, items);
+  filtered.sort((a,b)=> (a.no||0) - (b.no||0));
+
+  let html = `
+    <div class="card">
+      <div class="row" style="justify-content:space-between;">
+        <div class="small">化石</div>
+        <div class="badge">${filtered.length} 件</div>
+      </div>
+
+      <div class="filtersGrid">
+        <div class="fitem nameItem">
+          <div class="label">名前（部分一致）</div>
+          <div class="inputWithClear">
+            <input type="text" id="${kind}-f-name" placeholder="例：アンモナイト" value="${escapeHtml(f.name || "")}" autocomplete="off">
+            <button type="button" id="${kind}-f-name-clear" class="clearBtn" aria-label="clear" ${f.name ? "" : "disabled"}>×</button>
+          </div>
+        </div>
+
+        <div class="fitem spanAll bulkSection">
+          <div class="label"></div>
+          <div class="bulkBtns">
+            <button type="button" id="${kind}-checkAllBtn" class="btn">すべてチェック</button>
+            <button type="button" id="${kind}-uncheckAllBtn" class="btn">すべて解除</button>
+          </div>
+        </div>
+
+        <div class="fitem spanAll">
+          <div class="row checksRow" style="align-items:center;">
+            <label class="row chkCaught">
+              <input type="checkbox" id="${kind}-q-caughtOnly" ${f.caught==="caught"?"checked":""}/>
+              <span class="label">チェック済</span>
+            </label>
+
+            <label class="row chkUncaught">
+              <input type="checkbox" id="${kind}-q-uncaughtOnly" ${f.caught==="uncaught"?"checked":""}/>
+              <span class="label">未チェック</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <!-- ===== Mobile: compact list ===== -->
+      <div class="cList">
+  `;
+
+  for (const it of filtered){
+    const mk = state.marks[it.id] || {caught:false};
+    const priceText = (it.price ?? "") !== "" ? `${it.price}ベル` : "";
+
+    const iconHtml = getFossilIconImgHtmlByName(it.name);
+
+    html += `
+      <div class="cRow">
+        <div class="cHead" data-act="toggle" data-id="${it.id}" role="button" tabindex="0" aria-expanded="false">
+          <label class="cChk" aria-label="チェック">
+            <input type="checkbox" data-act="caught" data-id="${it.id}" ${mk.caught?"checked":""}>
+          </label>
+
+          <div class="cIconBig">
+            ${iconHtml}
+          </div>
+
+          <div class="cNameLine">
+            <div class="cNameText">${escapeHtml(it.name)}</div>
+          </div>
+        </div>
+
+        <div class="cDetail" data-detail="${it.id}" hidden>
+          <div class="cGrid fossilGrid">
+            <div class="cItem">
+              <div class="cLabel">売値</div>
+              <div class="cVal">${escapeHtml(priceText) || "—"}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  html += `
+      </div>
+
+      <!-- ===== Desktop: table ===== -->
+      <div class="tableWrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:72px;">済</th>
+              <th>名前</th>
+              <th style="width:110px;">売値</th>
+            </tr>
+          </thead>
+          <tbody>
+  `;
+
+  for (const it of filtered){
+    const mk = state.marks[it.id] || {caught:false};
+    const priceText = (it.price ?? "") !== "" ? `${it.price}ベル` : "";
+    const iconHtml = getFossilIconImgHtmlByName(it.name);
+
+    html += `
+      <tr>
+        <td data-label="済"><input type="checkbox" data-act="caught" data-id="${it.id}" ${mk.caught?"checked":""}></td>
+        <td class="td-name" data-label="名前">
+          <div class="nameRow">
+            ${iconHtml}<span class="nameText" title="${escapeHtml(it.name)}">${escapeHtml(it.name)}</span>
+          </div>
+        </td>
+        <td data-label="売値">${escapeHtml(priceText)}</td>
+      </tr>
+    `;
+  }
+
+  html += `
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  const viewEl = document.querySelector(`#view-${kind}`);
+  viewEl.innerHTML = html;
+
+  const rerender = ()=>{
+    saveState();
+    render();
+  };
+
+  // ---- 全件チェック／解除（表示中のみ） ----
+  (viewEl.querySelector(`#${kind}-checkAllBtn`) || {addEventListener:()=>{}}).addEventListener("click", ()=>{
+    for (const it of filtered) state.marks[it.id] = { caught: true };
+    rerender();
+  });
+  (viewEl.querySelector(`#${kind}-uncheckAllBtn`) || {addEventListener:()=>{}}).addEventListener("click", ()=>{
+    for (const it of filtered) state.marks[it.id] = { caught: false };
+    rerender();
+  });
+
+  // ★クイック絞り込み：チェック済／未チェック（相互排他）
+  (viewEl.querySelector(`#${kind}-q-caughtOnly`) || {addEventListener:()=>{}}).addEventListener("change", (e)=>{
+    if (e.target.checked) state.filters[kind].caught = "caught";
+    else state.filters[kind].caught = "all";
+    rerender();
+  });
+  (viewEl.querySelector(`#${kind}-q-uncaughtOnly`) || {addEventListener:()=>{}}).addEventListener("change", (e)=>{
+    if (e.target.checked) state.filters[kind].caught = "uncaught";
+    else state.filters[kind].caught = "all";
+    rerender();
+  });
+
+  // Filters（debounce対応：IME考慮）
+  const rerenderDebounced = (() => {
+    if (!window.__acnhDebounce) window.__acnhDebounce = { t: null };
+    if (!window.__acnhIME) window.__acnhIME = { composing: false };
+    const tick = () => {
+      if (window.__acnhIME && window.__acnhIME.composing) {
+        window.__acnhDebounce.t = setTimeout(tick, 200);
+        return;
+      }
+      rerender();
+    };
+    return () => {
+      clearTimeout(window.__acnhDebounce.t);
+      window.__acnhDebounce.t = setTimeout(tick, 200);
+    };
+  })();
+
+  const nameInput = viewEl.querySelector(`#${kind}-f-name`);
+  if (nameInput){
+    nameInput.addEventListener("compositionstart", ()=>{
+      if (!window.__acnhIME) window.__acnhIME = { composing: false };
+      window.__acnhIME.composing = true;
+      if (window.__acnhDebounce) clearTimeout(window.__acnhDebounce.t);
+    });
+    nameInput.addEventListener("compositionend", ()=>{
+      if (!window.__acnhIME) window.__acnhIME = { composing: false };
+      window.__acnhIME.composing = false;
+      state.filters[kind].name = nameInput.value;
+      rerenderDebounced();
+    });
+    nameInput.addEventListener("input", ()=>{
+      state.filters[kind].name = nameInput.value;
+      if (window.__acnhIME && window.__acnhIME.composing) return;
+      rerenderDebounced();
+    });
+  }
+
+  // Name clear button
+  const clearBtn = viewEl.querySelector(`#${kind}-f-name-clear`);
+  if (clearBtn){
+    clearBtn.addEventListener("click", ()=>{
+      state.filters[kind].name = "";
+      rerender();
+      const inp = viewEl.querySelector(`#${kind}-f-name`);
+      if (inp) { try { inp.focus(); } catch(_) {} }
+    });
+  }
+
+  // Row checkbox (table + list)
+  viewEl.querySelectorAll(`[data-act="caught"]`).forEach(el=>{
+    el.addEventListener("change",(e)=>{
+      const id = e.target.getAttribute("data-id");
+      state.marks[id] = { caught: e.target.checked };
+      rerender();
+    });
+  });
+
+  // Mobile: detail toggle（化石：売値のみ）
+  if (!viewEl.__acnhToggleBound) {
+    viewEl.__acnhToggleBound = true;
+
+    viewEl.addEventListener("click", (e)=>{
+      // チェック操作では詳細を開閉しない
+      if (e.target && (e.target.matches("input[type=\"checkbox\"]") || (e.target.closest && e.target.closest(".cChk")))) return;
+
+      const trg = e.target.closest && e.target.closest(`[data-act="toggle"]`);
+      if (!trg) return;
+      const id = trg.getAttribute("data-id");
+      if (!id) return;
+
+      const detail = viewEl.querySelector(`[data-detail="${id}"]`);
+      if (!detail) return;
+
+      detail.hidden = !detail.hidden;
+
+      const head = viewEl.querySelector(`.cHead[data-id="${id}"]`);
+      if (head) head.setAttribute("aria-expanded", detail.hidden ? "false" : "true");
+    });
+
+    // キーボード操作（Enter / Space）でも開閉
+    viewEl.addEventListener("keydown", (e)=>{
+      const head = e.target && e.target.closest && e.target.closest(`.cHead[data-act="toggle"]`);
+      if (!head) return;
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      head.click();
+    });
+  }
+
+}
+
 function setView(view){
   document.querySelectorAll(".tab").forEach(b=>{
     b.classList.toggle("active", b.dataset.view === view);
   });
-  ["fish","bugs","sea"].forEach(v=>{
+  ["fish","bugs","sea","fossil"].forEach(v=>{
     document.querySelector(`#view-${v}`).classList.toggle("hidden", v !== view);
   });
   state.currentView = view;
@@ -1102,14 +1363,15 @@ function setView(view){
 }
 
 let state = loadState();
-let cache = { fish:null, bugs:null, sea:null };
+let cache = { fish:null, bugs:null, sea:null, fossil:null };
 
 async function ensureLoaded(){
   if (!cache.fish) cache.fish = await loadData("fish");
   if (!cache.bugs) cache.bugs = await loadData("bugs");
   if (!cache.sea)  cache.sea  = await loadData("sea");
+  if (!cache.fossil) cache.fossil = await loadData("fossil");
 
-  ensureInitialMarks([...cache.fish, ...cache.bugs, ...cache.sea]);
+  ensureInitialMarks([...cache.fish, ...cache.bugs, ...cache.sea, ...cache.fossil]);
 }
 
 async function render(){
@@ -1123,7 +1385,8 @@ async function render(){
   try{
     await ensureLoaded();
     const view = state.currentView || "fish";
-    renderList(view, cache[view]);
+    if (view === "fossil") renderFossilList(cache.fossil);
+    else renderList(view, cache[view]);
     status("");
   } catch(e){
     console.error(e);
