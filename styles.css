@@ -293,7 +293,8 @@ select:disabled,input:disabled{opacity:.55}
 }
 
 .fitem{display:flex;flex-direction:column;gap:6px}
-.bulkBtns{display:flex;gap:8px;justify-content:flex-start;align-items:center;flex-wrap:nowrap}
+.bulkSection .label{display:none;}
+.bulkBtns{display:flex;gap:8px;justify-content:flex-start;align-items:center;flex-wrap:wrap}
 .bulkBtns .btn{width:auto;white-space:nowrap;font-weight:900}
 .span2{grid-column: 1 / -1;}
 .spanAll{grid-column: 1 / -1;}
@@ -322,12 +323,48 @@ select:disabled,input:disabled{opacity:.55}
 .manualStack .inlineLabel{margin:0;white-space:nowrap;}
 .manualRow .manualStack select{min-width:72px;}
 
-@media (max-width: 520px){
-  .manualRow{ flex-direction:column; align-items:stretch; gap:10px; }
-  .manualRow .manualStack{ width:100%; }
-  .manualRow .manualStack select{ width:100%; }
-  .anytimeLabel{ width:100%; }
+/* Nowモード（手動）：ブロック化してレイアウト制御しやすく */
+.nowModeBlock{display:flex;flex-direction:column;gap:10px; align-items:flex-start;}
+.nowModeSelectRow{display:flex; justify-content:flex-start; width:100%;}
+.nowModeSelectRow select{max-width:220px;}
+.manualRow{display:flex; gap:10px; justify-content:flex-start; align-items:flex-end; flex-wrap:wrap;}
+.anytimeLabel{display:flex; gap:6px; align-items:center; padding-bottom:2px;}
 
+.manualTimeRow{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+.manualTimeRow .manualHour{min-width:72px;}
+/* bulk default (desktop/tablet): keep compact buttons */
+.bulkSection .bulkBtns{display:flex;gap:8px;justify-content:flex-start;align-items:center;flex-wrap:wrap;}
+
+@media (max-width: 520px){
+  /* mobile: filters are 1 column in the exact order */
+  .sectionGrid{ grid-template-columns: 1fr; }
+  .filtersGrid{ grid-template-columns: 1fr; }
+
+  /* fish only: "場所" + "魚影" を同一行（2列）に */
+  .filtersGrid.hasShadow{ grid-template-columns: 1fr 1fr; }
+  .filtersGrid.hasShadow .nameItem{ grid-column: 1 / -1; }
+
+  /* Nowモード(手動)：
+     1行目: Nowモード/手動（セレクト）
+     2行目: 月 / 時間 / 全時間（左揃え・横並び） */
+  .nowModeBlock{ gap:8px; }
+  .nowModeSelectRow{ width:100%; }
+  .nowModeSelectRow select{ width:160px; }
+  .manualRow{ width:100%; flex-wrap:nowrap; gap:10px; justify-content:flex-start; }
+  .manualRow .manualMonth select,
+  .manualRow .manualHour select{ width:110px; }
+  .anytimeLabel{ padding-bottom:0; }
+
+  /* 一括：ボタンを1行フル（50% + 50%） */
+  .bulkSection .bulkBtns{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:10px;
+    width:100%;
+  }
+  .bulkSection .bulkBtns .btn{ width:100%; }
+
+  /* チェック群：2列で順番どおりに並べる */
   .checksRow{
     display:grid;
     grid-template-columns: 1fr 1fr;
@@ -344,7 +381,6 @@ select:disabled,input:disabled{opacity:.55}
 
   .clearBtn{ width:40px; height:40px; }
 }
-
 /* ========= table (desktop) ========= */
 .tableWrap{overflow:auto}
 .table{width:100%;border-collapse:collapse;min-width:920px}
@@ -432,12 +468,21 @@ select:disabled,input:disabled{opacity:.55}
   box-shadow: var(--shadow);
   overflow: hidden;
 }
-.cHead{ display:flex; align-items:center; gap:10px; padding: 12px 12px; }
+.cHead{ display:flex; align-items:center; gap:10px; padding: 12px 12px; cursor:pointer; }
+.cHead:focus-visible{ outline: 3px solid rgba(30,144,255,.35); outline-offset:-3px; }
 .cChk{ display:flex; align-items:center; gap:8px; flex:0 0 auto; }
 .cChk input{ width:20px; height:20px; }
 .cMain{ min-width:0; flex:1 1 auto; display:flex; flex-direction:column; gap:4px; }
 .cTopLine{ display:flex; align-items:center; gap:10px; min-width:0; }
 .cNo{ font-weight:900; font-size:12px; color: var(--muted); flex:0 0 auto; }
+.cIconBig{ flex:0 0 auto; display:flex; align-items:center; }
+.cIconBig .bugIcon,
+.cIconBig .fishIcon,
+.cIconBig .seaIcon{ width:52px; height:52px; border-radius:14px; min-width:52px; min-height:52px; }
+.cNameLine{ flex:1 1 auto; min-width:0; display:flex; align-items:center; }
+.cNameText{ font-weight:950; font-size:15px; color: var(--text); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.badge.now.inlineNow{ margin-left:auto; }
+
 .cNameBtn{
   appearance:none; border:0; background:transparent;
   padding:0; margin:0; text-align:left;
@@ -466,7 +511,8 @@ select:disabled,input:disabled{opacity:.55}
 
 /* Bug/Fish menu icons */
 .bugIcon,
-.fishIcon{
+.fishIcon,
+.seaIcon{
   width:22px; height:22px;
   flex:0 0 auto;
   border-radius:6px;
@@ -483,7 +529,16 @@ select:disabled,input:disabled{opacity:.55}
 
 /* ===== mobile list layout (kept minimal here) ===== */
 @media (max-width: 640px){
-  .cHead{ align-items:flex-start; }
+  .cHead{ align-items:center; }
+  .cNameText{
+    white-space:normal;
+    overflow:hidden;
+    text-overflow:clip;
+    display:-webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-height:1.2;
+  }
   .cNameBtn{
     white-space:normal;
     overflow:hidden;

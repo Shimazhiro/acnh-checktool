@@ -76,7 +76,7 @@ function formatMonthsDisplayFromArray(months){
 // - 操作UI（設定/絞り込み/ソート/検索）を整列（グリッド化）
 // - ★スマホは No+名前だけのカード一覧にし、タップで詳細展開（見やすく）
 // - ★魚影サイズを表示
-// - ★「チェック済のみ表示」「未チェックのみ表示」「1年中を除外」を追加
+// - ★「チェック済表示」「未チェック表示」「1年中を除外」を追加
 // - ★「状態」セレクトを削除し、位置に「すべてチェック」「すべて解除」ボタンを配置（表示中のfilteredに対して実行）
 // - ★見た目のバランスを整える（filtersGrid / checksRow / 一括ボタン整列）
 // - ★footerが空でも表示領域を奪う問題 → status空の時はfooter自体を非表示
@@ -151,6 +151,65 @@ function getFishIconImgHtmlByName(name){
   if (!url) return "";
   return `<img class="fishIcon" src="${url}" alt="" loading="lazy" decoding="async">`;
 }
+
+// ===== Sea creatures icons (local assets) =====
+// NOTE: Sea images are bundled in ./assets/sea/ (offline-friendly).
+const SEA_ICON_BASE = "./assets/sea/";
+const SEA_ICON_FILE_BY_NAME = {
+  "ワカメ":"Wakame.png",
+  "ウミブドウ":"Umibudou.png",
+  "ナマコ":"Namako.png",
+  "センジュナマコ":"Senjunamako.png",
+  "ヒトデ":"Hitode.png",
+  "ウニ":"Uni.png",
+  "パイプウニ":"Paipuuni.png",
+  "イソギンチャク":"Isogintyaku.png",
+  "ミズクラゲ":"Mizukurage.png",
+  "ウミウシ":"Umiushi.png",
+  "アコヤガイ":"Akoyagai.png",
+  "ムールガイ":"Muhrugai.png",
+  "オイスター":"Kaki.png",
+  "ホタテ":"Hotate.png",
+  "バイガイ":"Baigai.png",
+  "サザエ":"Sazae.png",
+  "アワビ":"Awabi.png",
+  "オオシャコガイ":"Shakogai.png",
+  "オウムガイ":"Oumugai.png",
+  "タコ":"Tako.png",
+  "メンダコ":"Mendako.png",
+  "コウモリダコ":"Koumoridako.png",
+  "ホタルイカ":"Hotaruika.png",
+  "ガザミ":"Gazami.png",
+  "ダンジネスクラブ":"DungenessCrab.png",
+  "ズワイガニ":"Zuwaigani.png",
+  "タラバガニ":"Tarabagani.png",
+  "フジツボ":"Fujitsubo.png",
+  "タカアシガニ":"Takaashigani.png",
+  "クルマエビ":"Kurumaebi.png",
+  "アマエビ":"Amaebi.png",
+  "シャコ":"Shako.png",
+  "イセエビ":"Iseebi.png",
+  "ロブスター":"Robusuta.png",
+  "ダイオウグソクムシ":"Daiougusokumushi.png",
+  "カブトガニ":"Kabutogani.png",
+  "ホヤ":"Hoya.png",
+  "チンアナゴ":"Chinanago.png",
+  "ヒラムシ":"Hiramushi.png",
+  "カイロウドウケツ":"Kairoudouketsu.png"
+};
+function getSeaIconUrlByName(name){
+  const key = (name ?? "").trim();
+  const file = SEA_ICON_FILE_BY_NAME[key];
+  if (!file) return "";
+  // filenames are ASCII, but encodeURIComponent keeps it robust.
+  return `${SEA_ICON_BASE}${encodeURIComponent(file)}`;
+}
+function getSeaIconImgHtmlByName(name){
+  const url = getSeaIconUrlByName(name);
+  if (!url) return "";
+  return `<img class="seaIcon" src="${url}" alt="" loading="lazy" decoding="async">`;
+}
+
 
 function getFishShadowLabelByNo(no){
   const n = Number(no);
@@ -318,7 +377,26 @@ function isCatchable(item){
   return false;
 }
 
-function normalizeText(s){ return String(s ?? "").toLowerCase(); }
+function normalizeText(s){
+  // Normalize for search:
+  // - NFKC: unify half/full-width forms (e.g., ｶﾀｶﾅ -> カタカナ)
+  // - Katakana -> Hiragana (so ひらがな/カタカナ both match)
+  // - Remove whitespace
+  const raw = String(s ?? "");
+  const nf = (raw.normalize ? raw.normalize("NFKC") : raw);
+  let out = "";
+  for (const ch of nf){
+    const code = ch.charCodeAt(0);
+    // Katakana (ァ..ヶ) -> Hiragana (ぁ..ゖ)
+    if (code >= 0x30A1 && code <= 0x30F6){
+      out += String.fromCharCode(code - 0x60);
+    } else {
+      out += ch;
+    }
+  }
+  return out.toLowerCase().replace(/\s+/g, "");
+}
+
 
 function escapeHtml(s){
   return String(s ?? "")
@@ -410,11 +488,19 @@ function ensureCompactStyles(){
   box-shadow: var(--shadow);
   overflow: hidden;
 }
-.cHead{ display:flex; align-items:center; gap:10px; padding: 12px 12px; }
+.cHead{ display:flex; align-items:center; gap:10px; padding: 12px 12px; cursor:pointer; }
 .cChk{ display:flex; align-items:center; gap:8px; flex:0 0 auto; }
 .cMain{ min-width:0; flex:1 1 auto; display:flex; flex-direction:column; gap:4px; }
 .cTopLine{ display:flex; align-items:center; gap:10px; min-width:0; }
 .cNo{ font-weight:900; font-size:12px; color: var(--muted); flex:0 0 auto; }
+.cIconBig{ flex:0 0 auto; display:flex; align-items:center; }
+.cIconBig .bugIcon,
+.cIconBig .fishIcon,
+.cIconBig .seaIcon{ width:34px; height:34px; border-radius:10px; min-width:34px; min-height:34px; }
+.cNameLine{ flex:1 1 auto; min-width:0; display:flex; align-items:center; }
+.cNameText{ font-weight:950; font-size:15px; color: var(--text); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.badge.now.inlineNow{ margin-left:auto; }
+
 .cNameBtn{
   appearance:none; border:0; background:transparent;
   padding:0; margin:0; text-align:left;
@@ -438,6 +524,18 @@ function ensureCompactStyles(){
 .cItem{ border:1px solid var(--border); background: rgba(255,255,255,.65); border-radius:12px; padding:10px; }
 .cLabel{ font-size:11px; color: var(--muted); font-weight:900; margin-bottom:4px; }
 .cVal{ font-size:13px; font-weight:900; color: var(--text); word-break: break-word; }
+
+@media (max-width: 640px){
+  .cNameText{
+    white-space:normal;
+    overflow:hidden;
+    text-overflow:clip;
+    display:-webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-height:1.2;
+  }
+}
 
 @media (max-width: 900px){
   .card .tableWrap{ display:none !important; }
@@ -507,7 +605,7 @@ function renderList(kind, items){
   // 半球
   // Nowモード 月（手動） 時間（手動） すべての時間（手動時のみ）
   // 場所 魚影（魚のみ） 名前（部分一致）
-  // チェック済のみ 未チェックのみ 1年中を除外 いま狙える いま狙えるのみ いま狙える順（後2つはON時のみ）
+  // チェック済 未チェック 1年中を除外 いま狙える いま狙える(Only) いま狙える(昇順)（後2つはON時のみ）
   // すべてチェック すべて解除（「一括」見出し無し）
   // ==========================
 
@@ -531,33 +629,33 @@ function renderList(kind, items){
           </select>
         </div>
 
-        <!-- Nowモード + 手動（月/時間/すべての時間） -->
+        <!-- Nowモード + 手動（月/時間/全時間） -->
         <div class="fitem spanAll">
           <div class="label">Nowモード</div>
 
-          <div class="row nowrap" style="gap:10px; align-items:flex-end; flex-wrap:wrap;">
-            <div class="manualStack" style="min-width:180px;">
+          <div class="nowModeBlock">
+            <div class="nowModeSelectRow">
               <select id="${kind}-set-nowMode">
                 <option value="auto" ${s.nowMode==="auto"?"selected":""}>自動</option>
                 <option value="manual" ${s.nowMode==="manual"?"selected":""}>手動</option>
               </select>
             </div>
 
-            <!-- 手動時だけ表示 -->
-            <div class="row manualRow" style="display:${s.nowMode==="manual"?"flex":"none"}; gap:10px; flex-wrap:wrap; align-items:flex-end;">
-              <div class="manualStack">
-                <div class="inlineLabel">月（手動）</div>
+            <!-- 手動時だけ表示：月 / 時間 / 全時間（左揃え・横並び） -->
+            <div class="manualRow" style="display:${s.nowMode==="manual"?"flex":"none"};">
+              <div class="manualStack manualMonth">
+                <div class="inlineLabel">月</div>
                 <select id="${kind}-set-month" ${manualDisabled?"disabled":""}>${monthOpts}</select>
               </div>
 
-              <div class="manualStack">
-                <div class="inlineLabel">時間（手動）</div>
+              <div class="manualStack manualHour">
+                <div class="inlineLabel">時間</div>
                 <select id="${kind}-set-hour" ${(manualDisabled||s.manualAnytime)?"disabled":""}>${hourOpts}</select>
               </div>
 
-              <label class="row anytimeLabel" style="gap:6px; align-items:center;">
+              <label class="row anytimeLabel">
                 <input type="checkbox" id="${kind}-set-anytime" ${s.manualAnytime?"checked":""} ${manualDisabled?"disabled":""}/>
-                <span class="inlineLabel">すべての時間</span>
+                <span class="inlineLabel">全時間</span>
               </label>
             </div>
           </div>
@@ -584,7 +682,7 @@ function renderList(kind, items){
         </div>
         ` : `` }
 
-        <div class="fitem">
+        <div class="fitem nameItem">
           <div class="label">名前（部分一致）</div>
           <div class="inputWithClear">
             <input type="text" id="${kind}-f-name" placeholder="${kind==='bugs'?'例：チョウ':(kind==='sea'?'例：ガニ':'例：サメ')}" value="${escapeHtml(f.name)}" autocomplete="off">
@@ -595,46 +693,48 @@ function renderList(kind, items){
 
       <!-- ===== PC/共通：下段（チェック群） ===== -->
       <div class="sectionGrid">
+
+        <!-- 一括 -->
+        <div class="fitem spanAll bulkSection">
+          <div class="label"></div>
+          <div class="bulkBtns">
+            <button type="button" id="${kind}-checkAllBtn" class="btn">すべてチェック</button>
+            <button type="button" id="${kind}-uncheckAllBtn" class="btn">すべて解除</button>
+          </div>
+        </div>
+
         <div class="fitem spanAll">
           <div class="row checksRow" style="align-items:center;">
-            <label class="row">
+            <label class="row chkCaught">
               <input type="checkbox" id="${kind}-q-caughtOnly" ${f.caught==="caught"?"checked":""}/>
-              <span class="label">チェック済のみ</span>
+              <span class="label">チェック済</span>
             </label>
 
-            <label class="row">
+            <label class="row chkUncaught">
               <input type="checkbox" id="${kind}-q-uncaughtOnly" ${f.caught==="uncaught"?"checked":""}/>
-              <span class="label">未チェックのみ</span>
+              <span class="label">未チェック</span>
             </label>
 
-            <label class="row">
+            <label class="row chkExcludeAllYear">
               <input type="checkbox" id="${kind}-f-excludeAllYear" ${f.excludeAllYear?"checked":""}/>
               <span class="label">1年中を除外</span>
             </label>
 
-            <label class="row">
+            <label class="row chkShowNow">
               <input type="checkbox" id="${kind}-set-showNowUI" ${s.showNowUI?"checked":""}/>
               <span class="label">いま狙える</span>
             </label>
 
             ${s.showNowUI ? `
-              <label class="row">
-                <input type="checkbox" id="${kind}-set-showNowOnly" ${s.showNowOnly?"checked":""}/>
-                <span class="label">いま狙えるのみ</span>
+              <label class="row chkNowOnly">
+              <input type="checkbox" id="${kind}-set-showNowOnly" ${s.showNowOnly?"checked":""}/>
+                <span class="label">いま狙える(Only)</span>
               </label>
-              <label class="row">
-                <input type="checkbox" id="${kind}-set-sortNowFirst" ${s.sortNowFirst?"checked":""}/>
-                <span class="label">いま狙える順</span>
+              <label class="row chkNowSort">
+              <input type="checkbox" id="${kind}-set-sortNowFirst" ${s.sortNowFirst?"checked":""}/>
+                <span class="label">いま狙える(昇順)</span>
               </label>
             ` : ``}
-          </div>
-        </div>
-
-        <!-- ★一括（見出し無し） -->
-        <div class="fitem spanAll">
-          <div class="bulkBtns" style="flex-wrap:wrap;">
-            <button type="button" id="${kind}-checkAllBtn" class="btn">すべてチェック</button>
-            <button type="button" id="${kind}-uncheckAllBtn" class="btn">すべて解除</button>
           </div>
         </div>
       </div>
@@ -665,38 +765,34 @@ function renderList(kind, items){
 
     const bugIconHtml = (kind==="bugs") ? getBugIconImgHtmlByNo(it.no) : "";
     const fishIconHtml = (kind==="fish") ? getFishIconImgHtmlByName(it.name) : "";
-    const iconHtml = bugIconHtml || fishIconHtml;
+    const seaIconHtml = (kind==="sea") ? getSeaIconImgHtmlByName(it.name) : "";
+    const iconHtml = bugIconHtml || fishIconHtml || seaIconHtml;
     const nameInnerHtml = (kind==="bugs" || kind==="fish")
       ? `${iconHtml}<span class="bugNameText">${escapeHtml(it.name)}</span>`
       : escapeHtml(it.name);
 
-    html += `
-      <div class="cRow">
-        <div class="cHead">
-          <label class="cChk">
-            <input type="checkbox" data-act="caught" data-id="${it.id}" ${mk.caught?"checked":""}>
-          </label>
+    
+html += `
+  <div class="cRow">
+    <div class="cHead" data-act="toggle" data-id="${it.id}" role="button" tabindex="0" aria-expanded="false">
+      <label class="cChk" aria-label="チェック">
+        <input type="checkbox" data-act="caught" data-id="${it.id}" ${mk.caught?"checked":""}>
+      </label>
 
-          <div class="cMain">
-            <div class="cTopLine">
-              <div class="cNo">No${it.no ?? ""}</div>
-              <button type="button" class="cNameBtn" data-act="toggle" data-id="${it.id}" aria-expanded="false">
-                ${nameInnerHtml}
-              </button>
-            </div>
+      <div class="cNo">No.${it.no ?? ""}</div>
 
-            <div class="cBadges">
-              ${(s.showNowUI && now) ? `<span class="badge now">いま狙える</span>` : ``}
-              ${mk.caught ? `<span class="badge">済</span>` : ``}
-            </div>
-          </div>
+      <div class="cIconBig">
+        ${iconHtml}
+      </div>
 
-          <button type="button" class="cToggle" data-act="toggle" data-id="${it.id}" aria-label="詳細">
-            詳細
-          </button>
-        </div>
+      <div class="cNameLine">
+        <div class="cNameText">${escapeHtml(it.name)}</div>
+      </div>
 
-        <div class="cDetail" data-detail="${it.id}" hidden>
+      ${(s.showNowUI && now) ? `<span class="badge now inlineNow">狙える</span>` : ``}
+    </div>
+
+    <div class="cDetail" data-detail="${it.id}" hidden>
           <div class="cGrid">
             <div class="cItem">
               <div class="cLabel">売値</div>
@@ -771,7 +867,8 @@ function renderList(kind, items){
 
     const bugIconHtml = (kind==="bugs") ? getBugIconImgHtmlByNo(it.no) : "";
     const fishIconHtml = (kind==="fish") ? getFishIconImgHtmlByName(it.name) : "";
-    const iconHtml = bugIconHtml || fishIconHtml;
+    const seaIconHtml = (kind==="sea") ? getSeaIconImgHtmlByName(it.name) : "";
+    const iconHtml = bugIconHtml || fishIconHtml || seaIconHtml;
 
     html += `
       <tr class="">
@@ -860,7 +957,7 @@ function renderList(kind, items){
     rerender();
   });
 
-  // ★クイック絞り込み：チェック済のみ／未チェックのみ（相互排他、f.caught を操作）
+  // ★クイック絞り込み：チェック済／未チェック（相互排他、f.caught を操作）
   (document.querySelector(`#${kind}-q-caughtOnly`) || {addEventListener:()=>{}}).addEventListener("change", (e)=>{
     if (e.target.checked) state.filters[kind].caught = "caught";
     else state.filters[kind].caught = "all";
@@ -964,6 +1061,9 @@ function renderList(kind, items){
   if (!viewEl.__acnhToggleBound) {
     viewEl.__acnhToggleBound = true;
     viewEl.addEventListener("click", (e)=>{
+      // チェック操作では詳細を開閉しない
+      if (e.target && (e.target.matches("input[type=\"checkbox\"]") || (e.target.closest && e.target.closest(".cChk")))) return;
+
       const trg = e.target.closest && e.target.closest(`[data-act="toggle"]`);
       if (!trg) return;
       const id = trg.getAttribute("data-id");
@@ -974,8 +1074,17 @@ function renderList(kind, items){
 
       detail.hidden = !detail.hidden;
 
-      const btn = viewEl.querySelector(`.cNameBtn[data-id="${id}"]`);
-      if (btn) btn.setAttribute("aria-expanded", detail.hidden ? "false" : "true");
+      const head = viewEl.querySelector(`.cHead[data-id="${id}"]`);
+      if (head) head.setAttribute("aria-expanded", detail.hidden ? "false" : "true");
+    });
+
+    // キーボード操作（Enter / Space）でも開閉
+    viewEl.addEventListener("keydown", (e)=>{
+      const head = e.target && e.target.closest && e.target.closest(`.cHead[data-act="toggle"]`);
+      if (!head) return;
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      head.click();
     });
   }
 }
